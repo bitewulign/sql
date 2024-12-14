@@ -106,7 +106,7 @@ Please do not pick the exact same tables that I have already diagrammed. For exa
 - The column names can be found in a few spots (DB Schema window in the bottom right, the Database Structure tab in the main window by expanding each table entry, at the top of the Browse Data tab in the main window)
 
 # Logical data model assignement answer for section 1 
-In this section , I chose the logical data model between __vender_booth_assignments__ and _booth_
+In this section , I chose the logical data model between __vender_booth_assignments__ and __booth__
 ![View the png logical data model for section 1](./images/Section_1.png)
 
 **or**
