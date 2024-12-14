@@ -105,9 +105,14 @@ Please do not pick the exact same tables that I have already diagrammed. For exa
 	- <img src="./images/01_farmers_market_conceptual_model.png" width="600">
 - The column names can be found in a few spots (DB Schema window in the bottom right, the Database Structure tab in the main window by expanding each table entry, at the top of the Browse Data tab in the main window)
 
-**Logical data model** 
-![Sample logical data model.png](./images/Section_1.png)
-![Sample logical data model.pdf](./images/Section_1.pdf)
+# Logical data model assignement answer for section 1 
+In this section , I chose the logical data model between __vender_booth_assignments__ and _booth_
+![View the png logical data model for section 1](./images/Section_1.png)
+
+**or**
+![View the PDF logical data model for  section 1](./images/Section_1.pdf)
+
+<img src='./images/Section_1.pdf', alt = 'View the PDF logical data model for section 1'/>
 
 ## Section 2:
 You can start this section following *session 2*.
