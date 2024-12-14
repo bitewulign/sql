@@ -110,9 +110,7 @@ In this section , I chose the logical data model between __vender_booth_assignme
 ![View the png logical data model for section 1](./images/Section_1.png)
 
 **or**
-![View the PDF logical data model for  section 1](./images/Section_1.pdf)
-
-<img src='./images/Section_1.pdf', alt = 'View the PDF logical data model for section 1'/>
+[View the PDF logical data model for  section 1](./images/Section_1.pdf)
 
 ## Section 2:
 You can start this section following *session 2*.
