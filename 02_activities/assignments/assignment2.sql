@@ -118,28 +118,48 @@ HINT: There are a possibly a few ways to do this query, but if you're struggling
 3) Query the second temp table twice, once for the best day, once for the worst day, 
 with a UNION binding them. */
 
-WITH SalesByDate AS (
-    SELECT
+-- Step 1: Create a CTE to calculate total sales per date
+WITH DailySales AS (
+    SELECT 
         market_date,
-        SUM(sales_amount) AS total_sales
-    FROM sales
-    GROUP BY market_date
+        SUM(total_sales) AS total_sales
+    FROM 
+        sales
+    GROUP BY 
+        sale_date
 ),
+
+-- Step 2: Create another CTE to rank the dates by total sales
 RankedSales AS (
-    SELECT
-        market_date,
+    SELECT 
+        sale_date,
         total_sales,
-        RANK() OVER (ORDER BY total_sales DESC) AS rank_high,
-        RANK() OVER (ORDER BY total_sales ASC) AS rank_low
-    FROM SalesByDate
+        RANK() OVER (ORDER BY total_sales DESC) AS rank_desc,
+        RANK() OVER (ORDER BY total_sales ASC) AS rank_asc
+    FROM 
+        DailySales
 )
-SELECT market_date, total_sales
-FROM RankedSales
-WHERE rank_high = 1
+
+-- Step 3: Query the best day and worst day using UNION
+SELECT 
+    sale_date,
+    total_sales,
+    'Highest Sales' AS category
+FROM 
+    RankedSales
+WHERE 
+    rank_desc = 1
+
 UNION
-SELECT market_date, total_sales
-FROM RankedSales
-WHERE rank_low = 1;
+
+SELECT 
+    sale_date,
+    total_sales,
+    'Lowest Sales' AS category
+FROM 
+    RankedSales
+WHERE 
+    rank_asc = 1;
 
 
 /* SECTION 3 */
