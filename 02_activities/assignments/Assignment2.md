@@ -7,8 +7,7 @@
 * Weight: 70% of total grade
 * The branch name for your repo should be: `assignment-two`
 * What to submit for this assignment:
-    * This markdown (Assignment2.md) with written responses in Section 1
-    * Two Entity-Relationship Diagrams (preferably in a pdf, jpeg, png format).
+    * This markdown (AssignmenPRAGMA grams (preferably in a pdf, jpeg, png format).
     * One .sql file 
 * What the pull request link should look like for this assignment: `https://github.com/<your_github_username>/sql/pulls/<pr_id>`
     * Open a private window in your browser. Copy and paste the link to your pull request into the address bar. Make sure you can see your pull request properly. This helps the technical facilitator and learning support staff review your submission easily.
