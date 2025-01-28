@@ -86,7 +86,8 @@ Find the NULLs and then using COALESCE, replace the NULL with a blank for the fi
 **HINT**: keep the syntax the same, but edited the correct components with the string. The `||` values concatenate the columns into strings. Edit the appropriate columns -- you're making two edits -- and the NULL rows will be fixed. All the other rows will remain the same.
 
 <div align="center">-</div>
-```sql
+
+```SQL
 SELECT 
 	product_name || ', ' || 
 	COALESCE(product_size, ' ') || ' (' || 
