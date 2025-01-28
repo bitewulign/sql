@@ -175,8 +175,36 @@ ORDER BY product_id;
 **HINT**: There are a possibly a few ways to do this query, but if you're struggling, try the following: 1) Create a CTE/Temp Table to find sales values grouped dates; 2) Create another CTE/Temp table with a rank windowed function on the previous query to create "best day" and "worst day"; 3) Query the second temp table twice, once for the best day, once for the worst day, with a UNION binding them. 
 
 ```sql
+-- Drop table if exists
+DROP TABLE IF EXISTS temp.customer_purchases_new;
+-- Create a table
+CREATE TABLE temp.customer_purchases_new AS
+SELECT market_date,
+	SUM(cost_to_customer_per_qty * quantity) as total_sales
+FROM customer_purchases
+GROUP BY market_date
+ORDER BY total_sales DESC;
 
-***
+SELECT * 
+FROM (
+    SELECT MAX(total_sales) as total_sales, market_date, 'best day' as results,
+    RANK () OVER (ORDER BY total_sales DESC) as rank
+    FROM customer_purchases_new
+    GROUP BY market_date
+    ORDER BY total_sales DESC 
+) x
+WHERE rank =  1
+UNION ALL
+SELECT * 
+FROM (
+    SELECT MIN(total_sales) as total_sales, market_date, 'worst day' as results,
+    RANK () OVER (ORDER BY total_sales ASC) as rank
+    FROM customer_purchases_new
+    GROUP BY market_date
+    ORDER BY total_sales ASC 
+) x
+WHERE rank =  1;
+```
 
 ## Section 3:
 You can start this section following *session 5*.
@@ -194,21 +222,74 @@ Steps to complete this part of the assignment:
 
 **HINT**: Be sure you select only relevant columns and rows. Remember, CROSS JOIN will explode your table rows, so CROSS JOIN should likely be a subquery. Think a bit about the row counts: how many distinct vendors, product names are there (x)? How many customers are there (y). Before your final group by you should have the product of those two queries (x\*y). 
 
-<div align="center">-</div>
+```sql
+SELECT vendor_name, product_name, original_price,
+SUM(paid_money) as paid_money
+FROM(SELECT DISTINCT vendor_name, product_name, original_price, (original_price * 5) as paid_money
+	FROM vendor_inventory vi
+    JOIN product p ON vi.product_id =  p.product_id
+    JOIN vendor v ON vi.vendor_id =  v.vendor_id
+     ) x
+     CROSS JOIN (SELECT  DISTINCT customer_id
+     FROM customer)
+GROUP BY vendor_name, product_name;
+```
 
 #### INSERT
 1. Create a new table "product_units". This table will contain only products where the `product_qty_type = 'unit'`. It should use all of the columns from the product table, as well as a new column for the `CURRENT_TIMESTAMP`.  Name the timestamp column `snapshot_timestamp`.
 
+```sql
+-- DROP if EXISTS
+DROP TABLE IF EXISTS product_units;
+-- Now creat a new table called product_units
+/*
+CREATE TABLE product_units (
+	product_id,
+	product_name, 
+	product_size, 
+	product_category_id, 
+	product_qty_type, 
+	snapshot_timestamp); 
+*/
+
+CREATE TABLE product_units AS
+	SELECT *,
+	CURRENT_TIMESTAMP AS snapshot_timestamp
+FROM product
+WHERE product_qty_type = 'unit';
+```
+
 2. Using `INSERT`, add a new row to the product_unit table (with an updated timestamp). This can be any product you desire (e.g. add another record for Apple Pie). 
 
-<div align="center">-</div>
+```sql
+INSERT INTO product_units (product_id, product_name,  product_size, product_category_id, product_qty_type, snapshot_timestamp)
+VALUES(21, 'Apple Pie', 'Large', '3', 'unit', CURRENT_TIMESTAMP) 
+
+-- Please check the insertion
+SELECT * 
+FROM product_units
+WHERE product_name = 'Apple Pie';
+```
 
 #### DELETE 
 1. Delete the older record for the whatever product you added.
 
 **HINT**: If you don't specify a WHERE clause, [you are going to have a bad time](https://imgflip.com/i/8iq872).
 
-<div align="center">-</div>
+```sql
+WITH older_record AS(
+	SELECT product_id
+    FROM product_units 
+    WHERE product_id = 21)
+
+DELETE FROM product_units
+WHERE (product_id =  (SELECT  product_id FROM older_record)
+);
+-- Please check if deleted
+SELECT *
+FROM product_units
+WHERE product_name = 'Apple Pie';
+```
 
 #### UPDATE
 1. We want to add the current_quantity to the product_units table. First, add a new column, `current_quantity` to the table using the following syntax.
@@ -220,3 +301,17 @@ ADD current_quantity INT;
 Then, using `UPDATE`, change the current_quantity equal to the **last** `quantity` value from the vendor_inventory details. 
 
 **HINT**: This one is pretty hard. First, determine how to get the "last" quantity per product. Second, coalesce null values to 0 (if you don't have null values, figure out how to rearrange your query so you do.) Third, `SET current_quantity = (...your select statement...)`, remembering that WHERE can only accommodate one column. Finally, make sure you have a WHERE statement to update the right row, you'll need to use `product_units.product_id` to refer to the correct row within the product_units table. When you have all of these components, you can run the update statement.
+```sql
+ALTER TABLE product_units
+ADD current_quantity INT;
+
+UPDATE product_units
+SET current_quantity = (
+	SELECT coalesce(SUM(quantity), 0)
+    FROM vendor_inventory 
+    WHERE product_id = product_units.product_id);
+
+	
+SELECT * 
+FROM product_units;
+```
