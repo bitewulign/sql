@@ -86,7 +86,7 @@ Find the NULLs and then using COALESCE, replace the NULL with a blank for the fi
 **HINT**: keep the syntax the same, but edited the correct components with the string. The `||` values concatenate the columns into strings. Edit the appropriate columns -- you're making two edits -- and the NULL rows will be fixed. All the other rows will remain the same.
 
 <div align="center">-</div>
-```sql
+```SQL
 SELECT 
 	product_name || ', ' || 
 	COALESCE(product_size, ' ') || ' (' || 
@@ -100,11 +100,57 @@ You can either display all rows in the customer_purchases table, with the counte
 
 **HINT**: One of these approaches uses ROW_NUMBER() and one uses DENSE_RANK().
 
+```SQL
+-- ROW_NUMBER()
+SELECT 
+	customer_id, market_date,
+	ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY market_date ASC) AS visit_number
+FROM customer_purchases
+GROUP BY customer_id, market_date
+ORDER BY customer_id, market_date;
+
+-- DENSE_RANK()
+SELECT 
+	customer_id, market_date,
+	DENSE_RANK() OVER (PARTITION BY customer_id ORDER BY market_date ASC) AS visit_number
+FROM customer_purchases
+ORDER BY customer_id, market_date;
+```
+
 2. Reverse the numbering of the query from a part so each customer’s most recent visit is labeled 1, then write another query that uses this one as a subquery (or temp table) and filters the results to only the customer’s most recent visit.
+
+```SQL
+--ROW_NUMBER
+SELECT * 
+FROM(
+	SELECT customer_id,market_date,
+	ROW_NUMBER() OVER(PARTITION BY customer_id ORDER BY market_date DESC) AS visit_number
+FROM customer_purchases 
+GROUP BY customer_id, market_date
+) x
+WHERE x.visit_number = 1
+ORDER BY customer_id,market_date;
+
+--DENSE_RANK
+SELECT *
+FROM(
+	SELECT customer_id,market_date,
+	DENSE_RANK() OVER (PARTITION BY customer_id ORDER BY market_date DESC) AS visit_number
+FROM customer_purchases
+) x
+WHERE x.visit_number = 1
+ORDER BY customer_id, market_date;
+```
 
 3. Using a COUNT() window function, include a value along with each row of the customer_purchases table that indicates how many different times that customer has purchased that product_id.
 
 <div align="center">-</div>
+```SQL
+SELECT customer_id, product_id,market_date,
+	COUNT(product_id) OVER (PARTITION BY customer_id, product_id) AS purchase_count
+FROM customer_purchases
+GROUP BY customer_id, product_id;
+```
 
 #### String manipulations
 1. Some product names in the product table have descriptions like "Jar" or "Organic". These are separated from the product name with a hyphen. Create a column using SUBSTR (and a couple of other commands) that captures these, but is otherwise NULL. Remove any trailing or leading whitespaces. Don't just use a case statement for each product! 
